@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-app
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: memory-app
+  replicas: 1
+  template:
+    metadata:
+      name: memory-app
+      labels:
+        app: memory-app
+    spec:
+      containers:
+        - name: memory-app
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_user
+                  name: memory-postgres-config
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: memory-postgres-secret
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_host
+                  name: memory-hostname-config
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_db
+                  name: memory-postgres-config
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres_port
+                  name: memory-postgres-config
+          image: jszlenk/memorize-docker-app

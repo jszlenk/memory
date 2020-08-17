@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: memory-app
+  name: memory-app
+  namespace: default
+spec:
+  selector:
+    app: memory-app
+    type: ClusterIP
+  ports:
+    - name: http
+      port: 8080

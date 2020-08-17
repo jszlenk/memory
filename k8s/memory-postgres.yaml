@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: memory-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 16Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-postgres
+spec:
+  selector:
+    matchLabels:
+      app: memory-postgres
+  template:
+    metadata:
+      labels:
+        app: memory-postgres
+    spec:
+      volumes:
+        - name: memory-postgres-storage
+          persistentVolumeClaim:
+            claimName: memory-postgres-pvc
+      containers:
+        - image: library/postgres:9.6
+          name: memory-postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: memory-postgres-config
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: memory-postgres-secret
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: memory-postgres-config
+                  key: postgres_db
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: memory-postgres-config
+                  key: postgres_port
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+              name: memory-postgres
+          volumeMounts:
+            - name: memory-postgres-storage
+              mountPath: /var/lib/postgresql/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memory-postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+  selector:
+    app: memory-postgres
+

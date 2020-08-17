@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: memory-postgres-config
+  namespace: default
+data:
+  postgres_user: kodilla
+  postgres_db: memory-db
+  postgres_port: '5432'
